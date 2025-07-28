@@ -3,16 +3,36 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.IO;
 using System.IO.Compression;
+using UnityEngine.UI;
+using TMPro;
 
 public class AutoPatcher : MonoBehaviour
 {
+    // File locations for version and .zip
     [SerializeField] private string versionInfoUrl = "https://github.com/Greypaw-uk/FWFW/releases/download/release/version.txt";
-    [SerializeField] private string latestReleaseURL = "https://github.com/Greypaw-uk/FWFW/releases/download/release/release.zip";
+    [SerializeField] private string latestReleaseURL = "";
+    //[SerializeField] private string latestReleaseURL = "https://github.com/Greypaw-uk/FWFW/releases/download/release/release.zip";
 
+    // Panel holding host/join buttons
+    [SerializeField] public GameObject buttonsPanel;
+    
+    // Update status UI elements
+    [SerializeField] public GameObject updateProcessPanel;
+    [SerializeField] TMP_Text tmpUpdateProcess;
+
+    // Version number
+    [SerializeField] TMP_Text tmpVersion;
+    private string localVersion;
     private string versionFilePath => Path.Combine(Application.persistentDataPath, "version.txt");
 
     void Start()
     {
+        updateProcessPanel.SetActive(true);
+        buttonsPanel.SetActive(false);
+
+        localVersion = ReadLocalVersion();
+        tmpVersion.text = $"Alpha: {localVersion}";
+        
         StartCoroutine(CheckForUpdate());
     }
 
@@ -24,8 +44,6 @@ public class AutoPatcher : MonoBehaviour
     /// </summary>
     IEnumerator CheckForUpdate()
     {
-        string localVersion = ReadLocalVersion();
-
         using UnityWebRequest www = UnityWebRequest.Get(versionInfoUrl);
         yield return www.SendWebRequest();
 
@@ -33,21 +51,21 @@ public class AutoPatcher : MonoBehaviour
 
         if (www.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError("Failed to fetch version info: " + www.error);
+            tmpUpdateProcess.text = "Failed to get version number";
             yield break;
         }
 
         string remoteVersion = www.downloadHandler.text.Trim();
-        Debug.Log($"Local version: {localVersion} | Remote version: {remoteVersion}");
+        tmpUpdateProcess.text = $"Local version: {localVersion} | Remote version: {remoteVersion}";
 
         if (remoteVersion != localVersion)
-        {
-            Debug.Log("Update available. Downloading...");
             StartCoroutine(DownloadAndInstallUpdate(remoteVersion));
-        }
         else
         {
-            Debug.Log("Game is up to date.");
+            tmpUpdateProcess.text = "Game is up to date.";
+
+            buttonsPanel.SetActive(true);
+            updateProcessPanel.SetActive(false);
         }
     }
 
@@ -58,6 +76,17 @@ public class AutoPatcher : MonoBehaviour
     /// <param name="newVersion"></param>
     IEnumerator DownloadAndInstallUpdate(string newVersion)
     {
+        Debug.Log("Update available. Downloading...");
+
+        // Do not remove - may attempt to overwrite files when launching from Unity instead of from a build.
+#if UNITY_EDITOR
+        if (Application.isEditor)
+        {
+            tmpUpdateProcess.text = "Auto-update skipped in Unity Editor.";
+            yield break;
+        }
+#endif
+
         string tempZipPath = Path.Combine(Application.persistentDataPath, "update.zip");
 
         using UnityWebRequest download = UnityWebRequest.Get(latestReleaseURL);
@@ -66,18 +95,18 @@ public class AutoPatcher : MonoBehaviour
 
         if (download.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError("Download failed: " + download.error);
+            tmpUpdateProcess.text = "Download failed: " + download.error;
             yield break;
         }
 
-        Debug.Log("Download complete. Extracting...");
+        tmpUpdateProcess.text = "Download complete. Extracting...";
 
         string extractPath = Application.dataPath; // Adjust if needed
 
         try
         {
             ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
-            Debug.Log("Update installed successfully.");
+            tmpUpdateProcess.text = "Update installed successfully.";
 
             File.WriteAllText(versionFilePath, newVersion);
 
@@ -85,12 +114,18 @@ public class AutoPatcher : MonoBehaviour
         }
         catch (System.Exception ex)
         {
-            Debug.LogError("Extraction failed: " + ex.Message);
+            tmpUpdateProcess.text = "Extraction failed: " + ex.Message;
         }
         finally
         {
             if (File.Exists(tempZipPath))
+            {
                 File.Delete(tempZipPath);
+            }
+
+            buttonsPanel.SetActive(true);
+            updateProcessPanel.SetActive(false);
+            tmpVersion.text = $"Alpha: {localVersion}";
         }
     }
 

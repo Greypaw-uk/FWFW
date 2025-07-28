@@ -259,10 +259,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cf1112a6b74cb24bbf6f11d959374a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  versionUrl: https://drive.google.com/file/d/1oRUb70EDFD9Mva3xInicqP4XnJhuny68/view?usp=sharing
-  buildDownloadUrl: https://yourserver.com/latest.zip
-  localVersion: 0.0.00000001
-  localVersionFile: version.txt
+  versionInfoUrl: https://github.com/Greypaw-uk/FWFW/releases/download/release/version.txt
+  latestReleaseURL: 
 --- !u!1 &238725936
 GameObject:
   m_ObjectHideFlags: 0
