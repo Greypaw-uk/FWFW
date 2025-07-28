@@ -3,15 +3,13 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.IO;
 using System.IO.Compression;
-using UnityEngine.UI;
 using TMPro;
 
 public class AutoPatcher : MonoBehaviour
 {
     // File locations for version and .zip
     [SerializeField] private string versionInfoUrl = "https://github.com/Greypaw-uk/FWFW/releases/download/release/version.txt";
-    [SerializeField] private string latestReleaseURL = "";
-    //[SerializeField] private string latestReleaseURL = "https://github.com/Greypaw-uk/FWFW/releases/download/release/release.zip";
+    [SerializeField] private string latestReleaseURL = "https://github.com/Greypaw-uk/FWFW/releases/download/release/release.zip";
 
     // Panel holding host/join buttons
     [SerializeField] public GameObject buttonsPanel;
