@@ -30,8 +30,10 @@ public class AutoPatcher : MonoBehaviour
 
         localVersion = ReadLocalVersion();
         tmpVersion.text = $"Alpha: {localVersion}";
-        
+
         StartCoroutine(CheckForUpdate());
+
+        updateProcessPanel.SetActive(false);
     }
 
 

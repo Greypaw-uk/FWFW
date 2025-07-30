@@ -13,6 +13,7 @@ using TMPro;
 public class TitleScreenUI : MonoBehaviour
 {
     [Header("Main Menu Buttons")]
+    public GameObject buttonsPanel;
     public Button hostButton;
     public Button joinButton;
 
@@ -89,6 +90,8 @@ public class TitleScreenUI : MonoBehaviour
     {
         joinPromptPanel.SetActive(true);
         joinCodeInputField.Select();
+
+        buttonsPanel.SetActive(false);
     }
 
     public async Task OnJoinAccepted()
@@ -129,5 +132,7 @@ public class TitleScreenUI : MonoBehaviour
     {
         joinPromptPanel.SetActive(false);
         joinCodeInputField.text = "";
+
+        buttonsPanel.SetActive(true);
     }
 }
