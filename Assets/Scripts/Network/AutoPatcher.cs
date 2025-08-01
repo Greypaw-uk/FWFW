@@ -4,6 +4,7 @@ using UnityEngine.Networking;
 using System.IO;
 using System.IO.Compression;
 using TMPro;
+using UnityEngine.UI;
 
 public class AutoPatcher : MonoBehaviour
 {
@@ -14,7 +15,6 @@ public class AutoPatcher : MonoBehaviour
     [Header("UI")]
     [SerializeField] private GameObject buttonsPanel;
     [SerializeField] TMP_Text tmpVersion;
-
 
     [Header("Host/Join panel elements")]
     [SerializeField] public GameObject updateProcessPanel;
@@ -33,8 +33,6 @@ public class AutoPatcher : MonoBehaviour
         tmpVersion.text = localVersion;
 
         StartCoroutine(CheckForUpdate());
-
-        buttonsPanel.SetActive(true);
     }
 
 
@@ -68,6 +66,7 @@ public class AutoPatcher : MonoBehaviour
             Debug.Log("Game is up to date");
 
             updateProcessPanel.SetActive(false);
+            buttonsPanel.SetActive(true);
         }
     }
 
@@ -80,18 +79,18 @@ public class AutoPatcher : MonoBehaviour
     {
         bool updatedSuccessfully = false;
 
-        SetUpdateProgressText("Update available. Downloading...");
+        SetUpdateProgressText("Update available. \n Downloading...");
         Debug.Log("Attempting to download update");
 
         // Ignore download attempt if within the Unity editor
-        #if UNITY_EDITOR
-            if (Application.isEditor)
-            {
-                SetUpdateProgressText("Auto-update skipped in Unity Editor.");
-                Debug.Log("Unity editor detected, aborting download");
-                yield break;
-            }
-        #endif
+#if UNITY_EDITOR
+        if (Application.isEditor)
+        {
+            SetUpdateProgressText("Auto-update skipped in Unity Editor.");
+            Debug.Log("Unity editor detected, aborting download");
+            yield break;
+        }
+#endif
 
 
         string tempZipPath = Path.Combine(Application.persistentDataPath, "update.zip");
@@ -106,14 +105,14 @@ public class AutoPatcher : MonoBehaviour
         while (!operation.isDone)
         {
             float percent = download.downloadProgress * 100f;
-            SetUpdateProgressText($"Downloading update... {percent:F0}%");
+            SetUpdateProgressText($"Downloading update... \n {percent:F0}%");
             yield return null;
         }
 
         // Check if download failed
         if (download.result != UnityWebRequest.Result.Success)
         {
-            SetUpdateProgressText("Download failed. Check log for details");
+            SetUpdateProgressText("Download failed. \n Check log for details");
             Debug.LogError($"Download failed: {download.error}");
             yield return new WaitForSeconds(5);
             yield break;
@@ -143,10 +142,11 @@ public class AutoPatcher : MonoBehaviour
 
         if (updatedSuccessfully)
         {
-            SetUpdateProgressText("Update success. Closing to apply changes");
-            Debug.Log("Update successful");
+            SetUpdateProgressText("Update successful. \n Game restarting.");
+            Debug.Log("Update successful. Restarting...");
+
             yield return new WaitForSeconds(2);
-            Application.Quit(); // Restart program after update
+            RestartGame();
         }
     }
 
@@ -175,8 +175,37 @@ public class AutoPatcher : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// Display patching progress on player's screen via tmpUpdateProcess 
+    /// </summary>
+    /// <param name="updateMessage"></param>
     void SetUpdateProgressText(string updateMessage)
     {
         tmpUpdateProcess.text = updateMessage;
+    }
+
+
+    /// <summary>
+    /// Auto restart the game to apply updates
+    /// </summary>
+    public void RestartGame()
+    {
+        #if UNITY_EDITOR
+            Debug.Log("Restart not supported in Editor.");
+        #else
+            string exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+
+            // Launch new instance
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = exePath,
+                UseShellExecute = true
+            });
+
+            // Force quit to avoid hang
+            Application.Quit();
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+        #endif
     }
 }
