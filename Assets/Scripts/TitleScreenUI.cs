@@ -30,6 +30,7 @@ public class TitleScreenUI : MonoBehaviour
         joinCodeInputField.text = "";
     }
 
+
     async void Start()
     {
         await UnityServices.InitializeAsync();
@@ -56,11 +57,17 @@ public class TitleScreenUI : MonoBehaviour
         cancelButton.onClick.AddListener(OnJoinCancelled);
     }
 
+
     void Update()
     {
         joinCodeInputField.text = joinCodeInputField.text.ToUpper();
     }
 
+
+    /// <summary>
+    /// Attempts to set up a new game with the player as host
+    /// </summary>
+    /// <returns></returns>
     public async Task OnHostClicked()
     {
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxConnections);
@@ -86,6 +93,9 @@ public class TitleScreenUI : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Open the Join panel, ready for player to enter join code
+    /// </summary>
     void OnJoinClickedPrompt()
     {
         joinPromptPanel.SetActive(true);
@@ -94,6 +104,11 @@ public class TitleScreenUI : MonoBehaviour
         buttonsPanel.SetActive(false);
     }
 
+
+    /// <summary>
+    /// Attempt to join the host's game
+    /// </summary>
+    /// <returns></returns>
     public async Task OnJoinAccepted()
     {
         string joinCode = joinCodeInputField.text.Trim();
@@ -128,6 +143,10 @@ public class TitleScreenUI : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// Join attempt cancelled - return to base UI
+    /// </summary>
     void OnJoinCancelled()
     {
         joinPromptPanel.SetActive(false);

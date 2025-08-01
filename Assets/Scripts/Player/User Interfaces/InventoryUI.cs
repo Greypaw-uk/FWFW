@@ -40,7 +40,10 @@ public class InventoryUI : NetworkBehaviour
     {
         // Display player's inventory
         if (Input.GetKeyDown(KeyCode.Tab))
+        {
             ToggleInventory();
+            ToggleTooltip();
+        }
     }
 
 
@@ -54,6 +57,21 @@ public class InventoryUI : NetworkBehaviour
 
         if (!isActive)
             RefreshInventory();
+    }
+
+
+        /// <summary>
+    /// Display player's inventory if tag is pressed
+    /// </summary>
+    void ToggleTooltip()
+    {
+        if (tooltip.tooltipObject.activeSelf)
+            tooltip.Hide();
+        else
+        {
+            tooltip.Hide(); // Just in case
+            RefreshInventory(); // or whatever re-evaluates hovered item
+        }
     }
 
 

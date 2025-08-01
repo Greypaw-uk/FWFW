@@ -34,6 +34,7 @@ public class AutoPatcher : MonoBehaviour
         StartCoroutine(CheckForUpdate());
 
         updateProcessPanel.SetActive(false);
+        buttonsPanel.SetActive(true);
     }
 
 
@@ -63,9 +64,6 @@ public class AutoPatcher : MonoBehaviour
         else
         {
             tmpUpdateProcess.text = "Game is up to date.";
-
-            buttonsPanel.SetActive(true);
-            updateProcessPanel.SetActive(false);
         }
     }
 
@@ -123,8 +121,6 @@ public class AutoPatcher : MonoBehaviour
                 File.Delete(tempZipPath);
             }
 
-            buttonsPanel.SetActive(true);
-            updateProcessPanel.SetActive(false);
             tmpVersion.text = $"Alpha: {localVersion}";
         }
     }
