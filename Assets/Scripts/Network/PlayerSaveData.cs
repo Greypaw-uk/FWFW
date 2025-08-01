@@ -15,7 +15,7 @@ public class PlayerSaveData : NetworkBehaviour
 
     private Inventory inventory;
 
-    public float saveInterval = 30f; 
+    public float saveInterval = 30f;
     private string savePath;
 
     public override void OnNetworkSpawn()
@@ -25,7 +25,7 @@ public class PlayerSaveData : NetworkBehaviour
         inventory = GetComponent<Inventory>();
         savePath = Path.Combine(Application.persistentDataPath, $"playerSave.json");
 
-        LoadPlayerData(); 
+        LoadPlayerData();
         StartCoroutine(AutoSaveRoutine());
     }
 
@@ -79,6 +79,17 @@ public class PlayerSaveData : NetworkBehaviour
 
         // Apply saved position
         transform.position = saveData.position;
-        Debug.Log($"[PlayerSaveData] Loaded position {saveData.position} for player {OwnerClientId}");
+        RequestServerToSetPositionServerRpc(saveData.position);
+    }
+    
+
+    /// <summary>
+    /// Update server with client's transform after it has been loaded from file
+    /// </summary>
+    /// <param name="position"></param>
+     [ServerRpc]
+    private void RequestServerToSetPositionServerRpc(Vector3 position)
+    {
+        transform.position = position;
     }
 }

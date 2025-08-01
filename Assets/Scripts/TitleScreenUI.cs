@@ -16,6 +16,7 @@ public class TitleScreenUI : MonoBehaviour
     public GameObject buttonsPanel;
     public Button hostButton;
     public Button joinButton;
+    public Button quitButton;
 
     [Header("Join Prompt UI")]
     public GameObject joinPromptPanel;
@@ -40,6 +41,7 @@ public class TitleScreenUI : MonoBehaviour
 
         hostButton.onClick.AddListener(async () => await OnHostClicked());
         joinButton.onClick.AddListener(OnJoinClickedPrompt);
+        quitButton.onClick.AddListener(onQuitClicked);
 
         // Attempt to join if player presses Enter in the input field
         joinCodeInputField.onEndEdit.AddListener(async input =>
@@ -153,5 +155,14 @@ public class TitleScreenUI : MonoBehaviour
         joinCodeInputField.text = "";
 
         buttonsPanel.SetActive(true);
+    }
+
+
+    /// <summary>
+    /// Close game if quit button clicked
+    /// </summary>
+    void onQuitClicked()
+    {
+        Application.Quit();
     }
 }
