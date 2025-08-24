@@ -187,7 +187,7 @@ public class PlayerFishing : NetworkBehaviour
     void AddFishClientRpc(string fishName, float weight, float price)
     {   
         Sprite fishIcon = GetComponent<Inventory>().GetSpriteForItem(fishName);
-        Items.Item fish = new Items.Item(fishName, weight, price, fishIcon);
+        Items.Item fish = new(fishName, weight, price, fishIcon);
 
         GetComponent<Inventory>().AddItem(fish);
     }

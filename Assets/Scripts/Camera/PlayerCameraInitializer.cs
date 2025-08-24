@@ -14,7 +14,7 @@ public class PlayerCameraInitializer : NetworkBehaviour
         // If scene already loaded, assign camera after a short delay
         if (SceneManager.GetActiveScene().isLoaded)
         {
-            Invoke(nameof(AssignCamera), 0.1f);
+            //Invoke(nameof(AssignCamera), 0.1f);
         }
 
         // Subscribe to future scene loads just in case
