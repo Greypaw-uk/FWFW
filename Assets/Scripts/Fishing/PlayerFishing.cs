@@ -119,6 +119,7 @@ public class PlayerFishing : NetworkBehaviour
         RequestCastServerRpc(direction);
     }
 
+
     [ServerRpc(RequireOwnership = false)]
     public void RequestCastServerRpc(Vector2 direction)
     {
@@ -128,20 +129,18 @@ public class PlayerFishing : NetworkBehaviour
 
     void HandleCatchSuccess()
     {
-        Debug.Log("PlayerFishing: Catch was successful!");
-
         var fish = FishGenerator.GenerateRandomFish();
         AddFishServerRpc(fish.Name, fish.Weight, fish.Price);
 
         EndFishing();
     }
 
+
     void HandleCatchFailed()
     {
-        Debug.Log("PlayerFishing: Catch failed.");
-
         EndFishing();
     }
+
 
     void EndFishing()
     {
@@ -160,13 +159,8 @@ public class PlayerFishing : NetworkBehaviour
     {
         if (caught)
         {
-            Debug.Log("Caught the fish!");
             var fish = FishGenerator.GenerateRandomFish();
             AddFishServerRpc(fish.Name, fish.Weight, fish.Price);
-        }
-        else
-        {
-            Debug.Log("Missed the fish.");
         }
 
         // Continue cleanup (flick rod etc.)
@@ -191,10 +185,11 @@ public class PlayerFishing : NetworkBehaviour
     /// <param name="fishName"></param>
     [ClientRpc]
     void AddFishClientRpc(string fishName, float weight, float price)
-    {
-        
-        // Update inventory or UI here
-        GetComponent<Inventory>().AddItem(fishName, weight, price);
+    {   
+        Sprite fishIcon = GetComponent<Inventory>().GetSpriteForItem(fishName);
+        Items.Item fish = new Items.Item(fishName, weight, price, fishIcon);
+
+        GetComponent<Inventory>().AddItem(fish);
     }
 
 

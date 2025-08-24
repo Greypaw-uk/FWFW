@@ -75,7 +75,6 @@ public class TitleScreenUI : MonoBehaviour
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxConnections);
         string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
         NetworkSessionInfo.JoinCode = joinCode;
-        Debug.Log($"Join code: {joinCode}");
 
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         transport.SetRelayServerData(

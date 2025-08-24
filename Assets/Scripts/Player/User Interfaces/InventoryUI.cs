@@ -91,7 +91,8 @@ public class InventoryUI : NetworkBehaviour
         }
 
         // Read items in inventory
-        List<Items.Item> itemsList = playerInventory.GetItems();
+        List<Items.Item> itemsList = new();
+        itemsList = playerInventory.GetItems();
 
         int totalSlots = 10;
 

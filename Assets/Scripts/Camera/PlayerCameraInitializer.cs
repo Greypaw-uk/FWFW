@@ -44,11 +44,10 @@ public class PlayerCameraInitializer : NetworkBehaviour
             vcam.Follow = transform;
             vcam.LookAt = transform;
             cameraAssigned = true;
-            Debug.Log($"🎥 Camera assigned to player {OwnerClientId}");
         }
         else
         {
-            Debug.LogWarning("❌ Camera not found when assigning.");
+            Debug.LogWarning("[PlayerCameraInitializer] Camera not found when assigning.");
         }
     }
 }

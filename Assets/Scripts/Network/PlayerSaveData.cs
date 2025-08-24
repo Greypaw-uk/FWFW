@@ -44,7 +44,7 @@ public class PlayerSaveData : NetworkBehaviour
     {
         if (inventory == null)
         {
-            Debug.LogWarning("No Inventory found to save.");
+            Debug.LogWarning("[PlayerSaveData] No Inventory found to save.");
             return;
         }
 

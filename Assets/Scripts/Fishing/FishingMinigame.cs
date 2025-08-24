@@ -66,13 +66,9 @@ public class FishingMinigame : MonoBehaviour
 
         fishingProgress = Mathf.Clamp(fishingProgress, 0f, requiredFishingProgress);
 
-        Debug.Log($"{fishingProgress}/{requiredFishingProgress}");
-
         // Victory
         if (fishingProgress >= requiredFishingProgress)
         {
-            Debug.LogWarning("Fishing successful");
-
             minigameActive = false;
             OnCatchSuccess?.Invoke();
             gameObject.SetActive(false);
