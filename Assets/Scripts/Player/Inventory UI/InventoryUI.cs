@@ -5,7 +5,7 @@ using Unity.Netcode;
 
 public class InventoryUI : NetworkBehaviour
 {
-    public int InventorySize = 10; 
+    [SerializeField] int inventorySize = 10;
 
     [SerializeField] public GameObject inventoryPanel;
     public Transform gridParent;
@@ -16,6 +16,7 @@ public class InventoryUI : NetworkBehaviour
     private List<GameObject> slots = new();
 
     public Tooltip tooltip;
+    public ContextMenu contextMenu;
 
 
     /// <summary>
@@ -30,12 +31,6 @@ public class InventoryUI : NetworkBehaviour
     }
 
 
-    public void SetInventory(Inventory inventory)
-    {
-        playerInventory = inventory;
-    }
-
-
     void Update()
     {
         // Display player's inventory
@@ -44,11 +39,23 @@ public class InventoryUI : NetworkBehaviour
             ToggleInventory();
             ToggleTooltip();
         }
+
+        // Control right-click context menu
+        if (Input.GetMouseButtonDown(0) && contextMenu.IsVisible && !contextMenu.IsPointerOverMenu())
+            contextMenu.Hide();
+    }
+
+
+    #region Inventory Management
+
+    public void SetInventory(Inventory inventory)
+    {
+        playerInventory = inventory;
     }
 
 
     /// <summary>
-    /// Display player's inventory if tag is pressed
+    /// Display player's inventory if tab is pressed
     /// </summary>
     void ToggleInventory()
     {
@@ -60,22 +67,12 @@ public class InventoryUI : NetworkBehaviour
     }
 
 
-        /// <summary>
-    /// Display player's inventory if tag is pressed
+    /// <summary>
+    /// Refresh inventory display based on itemsList
+    /// Displays inventory slots defined by inventorySize
+    /// For each item in itemsList, shows item's icon in inventory grid and adds tooltip handler
     /// </summary>
-    void ToggleTooltip()
-    {
-        if (tooltip.tooltipObject.activeSelf)
-            tooltip.Hide();
-        else
-        {
-            tooltip.Hide(); // Just in case
-            RefreshInventory(); // or whatever re-evaluates hovered item
-        }
-    }
-
-
-    void RefreshInventory()
+    public void RefreshInventory()
     {
         // Purge Inventory
         foreach (var obj in slots)
@@ -94,9 +91,7 @@ public class InventoryUI : NetworkBehaviour
         List<Items.Item> itemsList = new();
         itemsList = playerInventory.GetItems();
 
-        int totalSlots = 10;
-
-        for (int i = 0; i < totalSlots; i++)
+        for (int i = 0; i < inventorySize; i++)
         {
             GameObject slot = Instantiate(slotPrefab, gridParent);
             slot.SetActive(true);
@@ -117,24 +112,28 @@ public class InventoryUI : NetworkBehaviour
                 string itemWeight = itemsList[i].Weight.ToString();
                 string itemPrice = itemsList[i].Price.ToString();
 
-                Sprite itemSprite = playerInventory.GetSpriteForItem(itemName); 
+                Sprite itemSprite = playerInventory.GetSpriteForItem(itemName);
 
                 if (itemSprite != null)
                 {
                     // Show item's icon
                     iconImage.sprite = itemSprite;
-                    iconObject.SetActive(true); 
+                    iconObject.SetActive(true);
                 }
                 else
                 {
                     // Hide if no sprite found
-                    iconObject.SetActive(false); 
+                    iconObject.SetActive(false);
                 }
 
                 // Add tooltip handler to the iconObject (ItemIcon)
                 var hoverHandler = iconObject.AddComponent<SlotHoverHandler>();
                 // Set itemName to tooltip
-                hoverHandler.Init(tooltip, itemName, itemWeight, itemPrice); 
+                hoverHandler.Init(tooltip, itemName, itemWeight, itemPrice);
+
+                // Add right-click context menu
+                var rightClickHandler = iconObject.AddComponent<SlotRightClickHandler>();
+                rightClickHandler.Init(contextMenu, playerInventory, itemsList[i]);
             }
             else
             {
@@ -144,4 +143,31 @@ public class InventoryUI : NetworkBehaviour
             slots.Add(slot);
         }
     }
+
+    #endregion
+
+
+    #region Tooltips and Context Menus
+
+    /// <summary>
+    /// Display descriptive tooltip when hovering over item icon
+    /// </summary>
+    void ToggleTooltip()
+    {
+        if (tooltip.tooltipObject.activeSelf)
+            tooltip.Hide();
+        else
+        {
+            tooltip.Hide();
+            RefreshInventory();
+        }
+    }
+
+
+    void ToggleContextMenu()
+    {
+        // Future feature: Right-click context menu for item actions (use, drop, inspect)
+    }
+    
+    #endregion
 }
