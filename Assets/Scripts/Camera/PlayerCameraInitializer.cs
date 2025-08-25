@@ -12,9 +12,10 @@ public class PlayerCameraInitializer : NetworkBehaviour
         if (!IsOwner) return;
 
         // If scene already loaded, assign camera after a short delay
+        // Required for clients joining a hosted game - otherwise they will just have a blank screen
         if (SceneManager.GetActiveScene().isLoaded)
         {
-            //Invoke(nameof(AssignCamera), 0.1f);
+            Invoke(nameof(AssignCamera), 0.1f);
         }
 
         // Subscribe to future scene loads just in case
