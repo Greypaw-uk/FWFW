@@ -565,7 +565,7 @@ GameObject:
   - component: {fileID: 1246335649}
   - component: {fileID: 1246335648}
   - component: {fileID: 1246335652}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Collisions
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2640,7 +2640,7 @@ GameObject:
   - component: {fileID: 1500767847}
   - component: {fileID: 1500767849}
   - component: {fileID: 1500767848}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Details
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57833,7 +57833,7 @@ GameObject:
   - component: {fileID: 2021307396}
   - component: {fileID: 2021307395}
   - component: {fileID: 2021307394}
-  m_Layer: 4
+  m_Layer: 0
   m_Name: FishingSpot
   m_TagString: FishingSpot
   m_Icon: {fileID: 0}

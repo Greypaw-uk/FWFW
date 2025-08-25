@@ -152,24 +152,6 @@ public class PlayerFishing : NetworkBehaviour
 
 
     /// <summary>
-    /// Start the fishing mini game, add a random fish if successful, then show the rod flick once finished.
-    /// </summary>
-    /// <param name="success"></param>
-    private void OnMinigameResult(bool caught)
-    {
-        if (caught)
-        {
-            var fish = FishGenerator.GenerateRandomFish();
-            AddFishServerRpc(fish.Name, fish.Weight, fish.Price);
-        }
-
-        // Continue cleanup (flick rod etc.)
-        RequestRodFlickServerRpc();
-        RequestHideBobberServerRpc();
-    }
-
-
-    /// <summary>
     /// Notify server of change
     /// </summary>
     /// <param name="fishName"></param>
@@ -243,6 +225,7 @@ public class PlayerFishing : NetworkBehaviour
         }
     }
 
+
     [ServerRpc(RequireOwnership = false)]
     private void RequestRodFlickServerRpc()
     {
@@ -251,14 +234,7 @@ public class PlayerFishing : NetworkBehaviour
             activeRod.GetComponent<FishingRodController>()?.Flick();
         }
     }
-
-    private void TriggerRodFlick()
-    {
-        if (activeRod != null)
-        {
-            activeRod.GetComponent<FishingRodController>()?.Flick();
-        }
-    }
+    
 
     #endregion
 
