@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 6916074387639108181}
   - component: {fileID: 4336640053746682573}
   - component: {fileID: 4295241773950613077}
-  - component: {fileID: 7874395484396122267}
   - component: {fileID: 4548393715814054301}
   m_Layer: 7
   m_Name: Bobber
@@ -126,7 +125,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.1
+  m_Radius: 0.5
 --- !u!114 &4336640053746682573
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,7 +138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 125314134
+  GlobalObjectIdHash: 835330837
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -179,19 +178,6 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &7874395484396122267
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2002888846208943264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db0bfe9da0f48894780d750eeaf6d6d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerFishing: {fileID: 784403040930752090, guid: da40d7394b36e0a4aa2da2980c0df4c5, type: 3}
 --- !u!114 &4548393715814054301
 MonoBehaviour:
   m_ObjectHideFlags: 0

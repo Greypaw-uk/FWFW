@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FishingMinigame : MonoBehaviour
+public class FishingMinigame : MonoBehaviour, IFishingMinigame
 {
     [SerializeField] private GameObject minigamePanel;
     [SerializeField] private RectTransform hook;
@@ -12,8 +12,8 @@ public class FishingMinigame : MonoBehaviour
     private float fishingProgress = 0f;
     private bool minigameActive = false;
 
-    public System.Action OnCatchSuccess;
-    public System.Action OnCatchFailed;
+    public event System.Action OnCatchSuccess;
+    public event System.Action OnCatchFailed;
 
     public void StartMinigame()
     {
@@ -26,10 +26,9 @@ public class FishingMinigame : MonoBehaviour
     {
         minigamePanel.SetActive(minigameActive);
 
-        if (!minigameActive)
-            return;
+        if (!minigameActive) return;
 
-        // Move hook with mouse position
+        // --- Hook follows mouse ---
         Vector2 localMousePos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             minigamePanel.GetComponent<RectTransform>(),
@@ -38,35 +37,27 @@ public class FishingMinigame : MonoBehaviour
             out localMousePos
         );
 
-        // Update only Y axis, keep hook's X unchanged
         Vector2 hookPos = hook.anchoredPosition;
         RectTransform panelRect = minigamePanel.GetComponent<RectTransform>();
-
-        // Set hook position to mouse position. Clamp within confines of panel's height, minus the height of the hook so that it doesn't poke out the box
-        hookPos.y = Mathf.Clamp(localMousePos.y, -(panelRect.rect.height - hook.rect.height) / 2, (panelRect.rect.height - hook.rect.height) / 2);
+        hookPos.y = Mathf.Clamp(localMousePos.y,
+            -(panelRect.rect.height - hook.rect.height) / 2,
+            (panelRect.rect.height - hook.rect.height) / 2);
         hook.anchoredPosition = hookPos;
 
-        // Move target box automatically (bouncing)
+        // --- Target box bounce ---
         float yOffset = Mathf.Sin(Time.time * boxMoveSpeed) * boxMoveRange;
         var boxPos = targetBox.anchoredPosition;
         boxPos.y = yOffset;
         targetBox.anchoredPosition = boxPos;
 
-        // Check overlap
+        // --- Progress check ---
         if (RectTransformUtility.RectangleContainsScreenPoint(targetBox, hook.position))
-        {
-            // Increase fishing progress if there is overlap
             fishingProgress += Time.deltaTime;
-        }
         else
-        {
-            // Reduce fishing progress if no overlap
             fishingProgress -= Time.deltaTime * 2;
-        }
 
         fishingProgress = Mathf.Clamp(fishingProgress, 0f, requiredFishingProgress);
 
-        // Victory
         if (fishingProgress >= requiredFishingProgress)
         {
             minigameActive = false;
@@ -74,7 +65,6 @@ public class FishingMinigame : MonoBehaviour
             gameObject.SetActive(false);
         }
     }
-
 
     public void CancelMinigame()
     {

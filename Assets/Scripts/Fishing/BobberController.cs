@@ -2,26 +2,17 @@ using Unity.Netcode;
 using UnityEngine;
 using System.Collections;
 
-public class BobberController : NetworkBehaviour
+public class BobberController : NetworkBehaviour, IBobberController
 {
     public float arcHeight = 0.5f;
+    //private GameObject bobberObject;
 
-    private Vector3 target;
-    private float duration;
-
-    public void Launch(Vector3 start, Vector3 end, float duration)
+    public void Launch(Vector3 start, Vector3 end, float duration, IPlayerFishing owner)
     {
-        this.duration = duration;
+        //bobberObject = gameObject;
         StartCoroutine(ArcMove(start, end, duration));
     }
 
-    /// <summary>
-    /// Move the bobber away from the player in an arc
-    /// </summary>
-    /// <param name="start"></param>
-    /// <param name="end"></param>
-    /// <param name="duration"></param>
-    /// <returns></returns>
     private IEnumerator ArcMove(Vector3 start, Vector3 end, float duration)
     {
         float elapsed = 0f;
@@ -39,5 +30,14 @@ public class BobberController : NetworkBehaviour
         }
 
         transform.position = end;
+    }
+
+    public void Despawn()
+    {
+        var netObj = GetComponent<NetworkObject>();
+        if (netObj != null && netObj.IsSpawned && IsServer)
+            netObj.Despawn(true);
+        else
+            Destroy(gameObject);
     }
 }

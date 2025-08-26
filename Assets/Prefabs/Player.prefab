@@ -235,6 +235,7 @@ GameObject:
   - component: {fileID: 7717580059216201097}
   - component: {fileID: 784403040930752091}
   - component: {fileID: 784403040930752090}
+  - component: {fileID: 603405455813363440}
   - component: {fileID: 4753310358013248189}
   - component: {fileID: 7527032735599048818}
   - component: {fileID: 5536686777699919463}
@@ -398,16 +399,28 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 16
   fishingMinigame: {fileID: 7015231290582334857}
-  fishingDuration: 3
-  isTouchingFishingSpot: 0
-  isFishing: 0
   playerMovement: {fileID: 784403040930752091}
   bobberPrefab: {fileID: 2002888846208943264, guid: 6ba0630fd74c6df418ac2dd1fabf2627, type: 3}
+  isTouchingFishingSpot: 0
+  isFishing: 0
   BobberIsInWater: 1
   castDistance: 2
   castDuration: 1
+--- !u!114 &603405455813363440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 784403040930752080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c1904810b5b06247bd9631c42c1ee5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   rodPrefab: {fileID: 2530005647330766502, guid: fc8c2a89d3ce06e42a108a3c3316bea3, type: 3}
-  CastingAngle: 60
+  flickAngle: 60
+  flickDuration: 1
 --- !u!114 &4753310358013248189
 MonoBehaviour:
   m_ObjectHideFlags: 0
