@@ -10,12 +10,13 @@ public class InventoryUI : NetworkBehaviour, IInventoryUI
     public GameObject slotPrefab;
 
     private IInventory playerInventory;
+    bool IInventoryUI.isActive => inventoryPanel.activeSelf;
+
     private readonly List<GameObject> slots = new();
 
     public Tooltip tooltip;
     public ContextMenu contextMenu;
 
-    bool IInventoryUI.isActive => inventoryPanel.activeSelf;
 
     public override void OnNetworkSpawn()
     {
