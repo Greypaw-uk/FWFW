@@ -230,19 +230,19 @@ GameObject:
   - component: {fileID: 784403040930752085}
   - component: {fileID: 784403040930752087}
   - component: {fileID: 784403040930752084}
+  - component: {fileID: 8206197365947188610}
   - component: {fileID: 784403040930752089}
   - component: {fileID: 5467858149682834439}
   - component: {fileID: 7717580059216201097}
   - component: {fileID: 784403040930752091}
-  - component: {fileID: 784403040930752090}
-  - component: {fileID: 603405455813363440}
-  - component: {fileID: 4753310358013248189}
-  - component: {fileID: 7527032735599048818}
-  - component: {fileID: 5536686777699919463}
-  - component: {fileID: 4503073808379026636}
-  - component: {fileID: 2159078439976920902}
-  - component: {fileID: 1529023526929630227}
-  - component: {fileID: 7604867805834805893}
+  - component: {fileID: 8862490827080227438}
+  - component: {fileID: 2635155770845384263}
+  - component: {fileID: 4348823575342643599}
+  - component: {fileID: 3575590310044479792}
+  - component: {fileID: 889685066685592885}
+  - component: {fileID: 7263870276840720228}
+  - component: {fileID: 1896075639054859868}
+  - component: {fileID: 321563868617758620}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -309,6 +309,18 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &8206197365947188610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 784403040930752080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!58 &784403040930752089
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -382,8 +394,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 3
   SprintMultiplier: 2
-  playerFishing: {fileID: 784403040930752090}
---- !u!114 &784403040930752090
+  playerFishing: {fileID: 2635155770845384263}
+--- !u!114 &8862490827080227438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 784403040930752080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d856a998e440f94992df1f69e5b5bb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  optionsPanel: {fileID: 8714772203468994467}
+  quitButton: {fileID: 5794484995255900014}
+  PlayerFishing: {fileID: 2635155770845384263}
+--- !u!114 &2635155770845384263
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -398,15 +425,13 @@ MonoBehaviour:
   Water:
     serializedVersion: 2
     m_Bits: 16
-  fishingMinigame: {fileID: 7015231290582334857}
   playerMovement: {fileID: 784403040930752091}
   bobberPrefab: {fileID: 2002888846208943264, guid: 6ba0630fd74c6df418ac2dd1fabf2627, type: 3}
   isTouchingFishingSpot: 0
   isFishing: 0
-  BobberIsInWater: 1
   castDistance: 2
   castDuration: 1
---- !u!114 &603405455813363440
+--- !u!114 &4348823575342643599
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -421,7 +446,25 @@ MonoBehaviour:
   rodPrefab: {fileID: 2530005647330766502, guid: fc8c2a89d3ce06e42a108a3c3316bea3, type: 3}
   flickAngle: 60
   flickDuration: 1
---- !u!114 &4753310358013248189
+--- !u!114 &3575590310044479792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 784403040930752080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b9d04df0a7e69943981012b281268f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventorySize: 10
+  inventoryPanel: {fileID: 1406257253259139663}
+  gridParent: {fileID: 1406257252414243994}
+  slotPrefab: {fileID: 6326848787074375058, guid: 0a20d7f7bb652c74a80d5fd33be0ee1f, type: 3}
+  tooltip: {fileID: 5536483774850954770}
+  contextMenu: {fileID: 7703499421994022553}
+--- !u!114 &889685066685592885
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -433,7 +476,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 396afa683c8c3b6488027630c9d74f8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &7527032735599048818
+--- !u!114 &7263870276840720228
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -455,52 +498,7 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: f68bce8b9c233714c8eae56c89fea246, type: 3}
   - name: Catfish
     sprite: {fileID: 21300000, guid: f68bce8b9c233714c8eae56c89fea246, type: 3}
---- !u!114 &5536686777699919463
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 784403040930752080}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b9d04df0a7e69943981012b281268f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inventorySize: 10
-  inventoryPanel: {fileID: 1406257253259139663}
-  gridParent: {fileID: 1406257252414243994}
-  slotPrefab: {fileID: 6326848787074375058, guid: 0a20d7f7bb652c74a80d5fd33be0ee1f, type: 3}
-  tooltip: {fileID: 5536483774850954770}
-  contextMenu: {fileID: 7703499421994022553}
---- !u!114 &4503073808379026636
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 784403040930752080}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d856a998e440f94992df1f69e5b5bb4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  optionsPanel: {fileID: 8714772203468994467}
-  quitButton: {fileID: 5794484995255900014}
---- !u!114 &2159078439976920902
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 784403040930752080}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c847e90bdc3a31e449265c027b093cda, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joinCodeText: {fileID: 7060214442898884037}
---- !u!114 &1529023526929630227
+--- !u!114 &1896075639054859868
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -513,7 +511,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   saveInterval: 30
---- !u!114 &7604867805834805893
+--- !u!114 &321563868617758620
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -522,9 +520,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 784403040930752080}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
+  m_Script: {fileID: 11500000, guid: c847e90bdc3a31e449265c027b093cda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  joinCodeText: {fileID: 7060214442898884037}
 --- !u!1 &1406257252414243999
 GameObject:
   m_ObjectHideFlags: 0
@@ -1945,7 +1944,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   panel: {fileID: 6601017497598622718}
   deleteButton: {fileID: 26141982559723349}
-  inventoryUI: {fileID: 5536686777699919463}
+  inventoryUI: {fileID: 0}
 --- !u!1 &7816412849395720663
 GameObject:
   m_ObjectHideFlags: 0

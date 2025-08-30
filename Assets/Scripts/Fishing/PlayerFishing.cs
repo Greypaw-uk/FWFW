@@ -19,28 +19,36 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
     public float castDistance = 1.5f;
     public float castDuration = 0.8f;
 
+    bool IPlayerFishing.isFishing => isFishing;
+
     public override void OnNetworkSpawn()
     {
+        fishingRodController = GetComponent<FishingRodController>();
+        (fishingRodController as FishingRodController)?.Initialize(transform);
+
         if (!IsOwner) return;
 
         fishingMinigame = FindObjectOfType<FishingMinigame>();
         if (fishingMinigame is IFishingMinigame minigameInterface)
             fishingMinigame = minigameInterface;
-
-        fishingRodController = GetComponent<FishingRodController>();
-        (fishingRodController as FishingRodController)?.Initialize(transform);
     }
 
     private void Update()
     {
         if (!IsOwner) return;
 
-        // Cast attempt
         if (Input.GetKeyDown(KeyCode.F))
         {
+            
+
             if (isFishing || !isTouchingFishingSpot) return;
 
             StartCoroutine(CastOff());
+        }
+
+        if (isFishing && Input.GetKeyDown(KeyCode.Escape))
+        {
+            EndFishing();
         }
     }
 
@@ -84,6 +92,8 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
 
     private IEnumerator CastOff()
     {
+        isFishing = true;
+
         RodFlickServerRpc();
         yield return new WaitForSeconds(1f);
 
@@ -193,6 +203,7 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
     {
         RodFlickServerRpc();
         RequestHideBobberServerRpc();
+
         isFishing = false;
 
         if (fishingMinigame != null)

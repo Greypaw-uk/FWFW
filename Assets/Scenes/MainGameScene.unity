@@ -4638,6 +4638,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1948734614}
   - component: {fileID: 1948734613}
+  - component: {fileID: 1948734615}
   m_Layer: 0
   m_Name: CM_PlayerFollow
   m_TagString: Untagged
@@ -4699,6 +4700,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1948734615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1948734611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93269c03fad62e741b00ec38e292ead5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vcam: {fileID: 1948734613}
+  currentZoomLevel: 0
+  minZoom: 1
+  maxZoom: 10
 --- !u!1 &1990627732
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,20 +14,22 @@ public class PlayerMovement : NetworkBehaviour
     private NetworkVariable<Vector2> serverInput = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<float> serverSpeed = new(writePerm: NetworkVariableWritePermission.Server);
 
-    public PlayerFishing playerFishing;
+    public IPlayerFishing fishing;
     public Vector2 LastMovementDirection { get; private set; } = Vector2.down;
 
     private Rigidbody2D rb;
 
-    private void Start()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         targetPosition = transform.position;
+
+        fishing = GetComponent<IPlayerFishing>();
     }
 
     private void Update()
     {
-        if (!IsOwner || playerFishing.isFishing) return;
+        if (!IsOwner || fishing.isFishing) return;
 
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");

@@ -6,6 +6,7 @@ public class OptionsUI : NetworkBehaviour
 {
     [SerializeField] public GameObject optionsPanel;
     public Button quitButton;
+    private IPlayerFishing fishing;
 
 
     public override void OnNetworkSpawn()
@@ -17,16 +18,18 @@ public class OptionsUI : NetworkBehaviour
     }
 
 
-    void Start()
+    void Awake()
     {
         quitButton.onClick.AddListener(QuitButtonClicked);
+
+        fishing = GetComponent<IPlayerFishing>();
     }
 
 
     void Update()
     {
         // Open the options menu if Escape key is pressed
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (!fishing.isFishing && Input.GetKeyDown(KeyCode.Escape))
         {
             bool isActive = optionsPanel.activeSelf;
             optionsPanel.SetActive(!isActive);
