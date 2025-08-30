@@ -44,7 +44,7 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
         if (Input.GetKeyDown(KeyCode.F))
         {
             // Do not allow fishing if inventory is full
-            if (inventory.GetCurrentItemCount() >= inventory.GetMaxItems()) return;
+            if (inventory.GetCurrentItemsCount() >= inventory.GetMaxItemsCount()) return;
 
             // Do not allow fishing if already fishing or not touching a fishing spot
             if (isFishing || !isTouchingFishingSpot) return;

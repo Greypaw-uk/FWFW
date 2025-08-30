@@ -3,18 +3,20 @@ using System.Collections.Generic;
 
 public class Inventory : MonoBehaviour, IInventory
 {
-    // Store any type of IItem
     public List<Items.Item> inventoryItems = new();
 
     [SerializeField] private List<FishSpriteData> itemSprites;
 
     [SerializeField] private int maxItems = 10;
-    [SerializeField] private InventoryUI InventoryUI;
+
+    // Event to notify listeners of changes
+    public event System.Action OnInventoryChanged;
+
 
     public void AddItem(Items.Item item)
     {
         inventoryItems.Add(item);
-        InventoryUI.RefreshInventory();
+        OnInventoryChanged?.Invoke();
     }
 
 
@@ -23,40 +25,27 @@ public class Inventory : MonoBehaviour, IInventory
         if (inventoryItems.Contains(item))
         {
             inventoryItems.Remove(item);
-            InventoryUI.RefreshInventory();
+            OnInventoryChanged?.Invoke();
         }
         else
+        {
             Debug.LogWarning($"[Inventory] Item {item.Name} not found in inventory.");
+        }
     }
 
+    public List<Items.Item> GetItems() => inventoryItems;
 
-    public List<Items.Item> GetItems()
-    {
-        return inventoryItems;
-    }
+    public int GetCurrentItemsCount() => inventoryItems.Count;
 
-
-    public int GetMaxItems() => maxItems;
-    public int GetCurrentItemCount() => inventoryItems.Count;
+    public int GetMaxItemsCount() => maxItems;
 
 
-    /// <summary>
-    /// Get sprite for item by name - stored in player prefab under attached inventory.cs
-    /// </summary>
-    /// <param name="itemName"></param>
-    /// <returns></returns>
     public Sprite GetSpriteForItem(string itemName)
     {
         var match = itemSprites.Find(x => x.name == itemName);
         return match?.sprite;
     }
-
-    public void SetUI(InventoryUI ui)
-    {
-        InventoryUI = ui;
-    }
 }
-
 
 
 [System.Serializable]

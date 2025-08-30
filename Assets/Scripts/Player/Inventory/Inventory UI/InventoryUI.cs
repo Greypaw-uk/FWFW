@@ -3,42 +3,47 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using Unity.Netcode;
 
-public class InventoryUI : NetworkBehaviour
+public class InventoryUI : NetworkBehaviour, IInventoryUI
 {
     [SerializeField] public GameObject inventoryPanel;
     public Transform gridParent;
     public GameObject slotPrefab;
 
     private IInventory playerInventory;
-
-    private List<GameObject> slots = new();
+    private readonly List<GameObject> slots = new();
 
     public Tooltip tooltip;
     public ContextMenu contextMenu;
 
+    bool IInventoryUI.isActive => inventoryPanel.activeSelf;
 
-    /// <summary>
-    /// Assigns inventory to player if they are active
-    /// </summary>
     public override void OnNetworkSpawn()
     {
         inventoryPanel.SetActive(false);
-
-        if (!IsOwner)
-            enabled = false;
     }
 
 
     void Update()
     {
-        // Display player's inventory
+        // Toggle Inventory panel on Tab key
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             ToggleInventory();
             ToggleTooltip();
         }
 
-        // Control right-click context menu
+        // Close Inventory panel on Escape key
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (inventoryPanel.activeSelf)
+                ToggleInventory();
+            if (tooltip.tooltipObject.activeSelf)
+                tooltip.Hide();
+            if (contextMenu.IsVisible)
+                contextMenu.Hide();
+        }
+
+        // Hide context menu on left mouse click outside of it
         if (Input.GetMouseButtonDown(0) && contextMenu.IsVisible && !contextMenu.IsPointerOverMenu())
             contextMenu.Hide();
     }
@@ -48,20 +53,15 @@ public class InventoryUI : NetworkBehaviour
 
     public void SetInventory(IInventory inventory)
     {
+        if (playerInventory != null)
+            playerInventory.OnInventoryChanged -= RefreshInventory;
+
         playerInventory = inventory;
-
-    // If the concrete type is Inventory, set its UI reference
-    if (inventory is Inventory concreteInventory)
-    {
-        concreteInventory.SetUI(this);
-    }
+        playerInventory.OnInventoryChanged += RefreshInventory;
     }
 
 
-    /// <summary>
-    /// Display player's inventory if tab is pressed
-    /// </summary>
-    void ToggleInventory()
+    public void ToggleInventory()
     {
         bool isActive = inventoryPanel.activeSelf;
         inventoryPanel.SetActive(!isActive);
@@ -71,77 +71,57 @@ public class InventoryUI : NetworkBehaviour
     }
 
 
-    /// <summary>
-    /// Refresh inventory display based on itemsList
-    /// Displays inventory slots defined by inventorySize
-    /// For each item in itemsList, shows item's icon in inventory grid and adds tooltip handler
-    /// </summary>
     public void RefreshInventory()
     {
-        // Purge Inventory
         foreach (var obj in slots)
             Destroy(obj);
-
         slots.Clear();
 
-        // Ensure Inventory is assigned to player
         if (playerInventory == null)
         {
             Debug.LogWarning("InventoryUI: No playerInventory assigned!");
             return;
         }
 
-        // Read items in inventory
-        List<Items.Item> itemsList = new();
-        itemsList = playerInventory.GetItems();
+        List<Items.Item> itemsList = playerInventory.GetItems();
 
-        for (int i = 0; i < playerInventory.GetMaxItems(); i++)
+        for (int i = 0; i < playerInventory.GetMaxItemsCount(); i++)
         {
             GameObject slot = Instantiate(slotPrefab, gridParent);
             slot.SetActive(true);
 
-            // Get the ItemIcon GameObject and its Image component
             Transform iconTransform = slot.transform.Find("ItemIcon");
-            if (iconTransform == null)
-                continue;
+            if (iconTransform == null) continue;
 
             GameObject iconObject = iconTransform.gameObject;
             Image iconImage = iconObject.GetComponent<Image>();
-            if (iconImage == null)
-                continue;
+            if (iconImage == null) continue;
 
             if (i < itemsList.Count)
             {
-                string itemName = itemsList[i].Name;
-                string itemWeight = itemsList[i].Weight.ToString();
-                string itemPrice = itemsList[i].Price.ToString();
+                Items.Item item = itemsList[i];
 
-                Sprite itemSprite = playerInventory.GetSpriteForItem(itemName);
+                Sprite itemSprite = playerInventory.GetSpriteForItem(item.Name);
 
                 if (itemSprite != null)
                 {
-                    // Show item's icon
                     iconImage.sprite = itemSprite;
                     iconObject.SetActive(true);
                 }
                 else
                 {
-                    // Hide if no sprite found
                     iconObject.SetActive(false);
                 }
 
-                // Add tooltip handler to the iconObject (ItemIcon)
                 var hoverHandler = iconObject.AddComponent<SlotHoverHandler>();
-                // Set itemName to tooltip
-                hoverHandler.Init(tooltip, itemName, itemWeight, itemPrice);
+                hoverHandler.Init(tooltip, item.Name, item.Weight.ToString(), item.Price.ToString());
 
-                // Add right-click context menu
                 var rightClickHandler = iconObject.AddComponent<SlotRightClickHandler>();
-                rightClickHandler.Init(contextMenu, playerInventory as Inventory, itemsList[i]);
+                rightClickHandler.Init(contextMenu, (Inventory)playerInventory, item);
             }
             else
             {
-                iconObject.SetActive(false); // Empty slot
+                iconObject.SetActive(false);
             }
 
             slots.Add(slot);
@@ -153,9 +133,6 @@ public class InventoryUI : NetworkBehaviour
 
     #region Tooltips and Context Menus
 
-    /// <summary>
-    /// Display descriptive tooltip when hovering over item icon
-    /// </summary>
     void ToggleTooltip()
     {
         if (tooltip.tooltipObject.activeSelf)
@@ -166,6 +143,6 @@ public class InventoryUI : NetworkBehaviour
             RefreshInventory();
         }
     }
-    
+
     #endregion
 }

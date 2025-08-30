@@ -7,6 +7,7 @@ public interface IInventory
     void RemoveItem(Items.Item item);
     List<Items.Item> GetItems();
     Sprite GetSpriteForItem(string itemName);
-    int GetMaxItems();
-    int GetCurrentItemCount();
+    int GetMaxItemsCount();
+    int GetCurrentItemsCount();
+    event System.Action OnInventoryChanged;
 }
