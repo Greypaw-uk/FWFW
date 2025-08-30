@@ -12,6 +12,7 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
 
     private IFishingRodController fishingRodController;
     private IBobberController activeBobber;
+    private IInventory inventory;
 
     public bool isTouchingFishingSpot = false;
     private bool rodIsVisible = false;
@@ -26,6 +27,8 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
         fishingRodController = GetComponent<FishingRodController>();
         (fishingRodController as FishingRodController)?.Initialize(transform);
 
+        inventory = GetComponent<Inventory>(); // Cast to interface
+
         if (!IsOwner) return;
 
         fishingMinigame = FindObjectOfType<FishingMinigame>();
@@ -33,14 +36,17 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
             fishingMinigame = minigameInterface;
     }
 
+
     private void Update()
     {
         if (!IsOwner) return;
 
         if (Input.GetKeyDown(KeyCode.F))
         {
-            
+            // Do not allow fishing if inventory is full
+            if (inventory.GetCurrentItemCount() >= inventory.GetMaxItems()) return;
 
+            // Do not allow fishing if already fishing or not touching a fishing spot
             if (isFishing || !isTouchingFishingSpot) return;
 
             StartCoroutine(CastOff());

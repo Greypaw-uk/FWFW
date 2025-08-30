@@ -279,7 +279,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3116198901
+  GlobalObjectIdHash: 3317583012
   InScenePlacedSourceGlobalObjectIdHash: 2703724698
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -394,7 +394,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 3
   SprintMultiplier: 2
-  playerFishing: {fileID: 2635155770845384263}
 --- !u!114 &8862490827080227438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -409,7 +408,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   optionsPanel: {fileID: 8714772203468994467}
   quitButton: {fileID: 5794484995255900014}
-  PlayerFishing: {fileID: 2635155770845384263}
 --- !u!114 &2635155770845384263
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -458,7 +456,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b9d04df0a7e69943981012b281268f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventorySize: 10
   inventoryPanel: {fileID: 1406257253259139663}
   gridParent: {fileID: 1406257252414243994}
   slotPrefab: {fileID: 6326848787074375058, guid: 0a20d7f7bb652c74a80d5fd33be0ee1f, type: 3}
@@ -498,6 +495,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: f68bce8b9c233714c8eae56c89fea246, type: 3}
   - name: Catfish
     sprite: {fileID: 21300000, guid: f68bce8b9c233714c8eae56c89fea246, type: 3}
+  maxItems: 10
+  InventoryUI: {fileID: 3575590310044479792}
 --- !u!114 &1896075639054859868
 MonoBehaviour:
   m_ObjectHideFlags: 0

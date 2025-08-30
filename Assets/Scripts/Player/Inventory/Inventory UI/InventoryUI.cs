@@ -5,13 +5,11 @@ using Unity.Netcode;
 
 public class InventoryUI : NetworkBehaviour
 {
-    [SerializeField] int inventorySize = 10;
-
     [SerializeField] public GameObject inventoryPanel;
     public Transform gridParent;
     public GameObject slotPrefab;
 
-    private Inventory playerInventory;
+    private IInventory playerInventory;
 
     private List<GameObject> slots = new();
 
@@ -48,9 +46,15 @@ public class InventoryUI : NetworkBehaviour
 
     #region Inventory Management
 
-    public void SetInventory(Inventory inventory)
+    public void SetInventory(IInventory inventory)
     {
         playerInventory = inventory;
+
+    // If the concrete type is Inventory, set its UI reference
+    if (inventory is Inventory concreteInventory)
+    {
+        concreteInventory.SetUI(this);
+    }
     }
 
 
@@ -91,7 +95,7 @@ public class InventoryUI : NetworkBehaviour
         List<Items.Item> itemsList = new();
         itemsList = playerInventory.GetItems();
 
-        for (int i = 0; i < inventorySize; i++)
+        for (int i = 0; i < playerInventory.GetMaxItems(); i++)
         {
             GameObject slot = Instantiate(slotPrefab, gridParent);
             slot.SetActive(true);
@@ -133,7 +137,7 @@ public class InventoryUI : NetworkBehaviour
 
                 // Add right-click context menu
                 var rightClickHandler = iconObject.AddComponent<SlotRightClickHandler>();
-                rightClickHandler.Init(contextMenu, playerInventory, itemsList[i]);
+                rightClickHandler.Init(contextMenu, playerInventory as Inventory, itemsList[i]);
             }
             else
             {
@@ -161,12 +165,6 @@ public class InventoryUI : NetworkBehaviour
             tooltip.Hide();
             RefreshInventory();
         }
-    }
-
-
-    void ToggleContextMenu()
-    {
-        // Future feature: Right-click context menu for item actions (use, drop, inspect)
     }
     
     #endregion
