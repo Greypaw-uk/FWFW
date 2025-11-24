@@ -1,6 +1,5 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI;
 
 public class JoinCodeDisplay : MonoBehaviour
 {
@@ -18,8 +17,7 @@ public class JoinCodeDisplay : MonoBehaviour
         }
         else
         {
-            joinCodeText.text = "Join Code: Not available";
-            //copyButton.interactable = false;
+            joinCodeText.text = "";
         }
     }
 }

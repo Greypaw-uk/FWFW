@@ -12,6 +12,7 @@ public class PlayerCameraInitializer : NetworkBehaviour
         if (!IsOwner) return;
 
         // If scene already loaded, assign camera after a short delay
+        // Required for clients joining a hosted game - otherwise they will just have a blank screen
         if (SceneManager.GetActiveScene().isLoaded)
         {
             Invoke(nameof(AssignCamera), 0.1f);
@@ -44,11 +45,10 @@ public class PlayerCameraInitializer : NetworkBehaviour
             vcam.Follow = transform;
             vcam.LookAt = transform;
             cameraAssigned = true;
-            Debug.Log($"🎥 Camera assigned to player {OwnerClientId}");
         }
         else
         {
-            Debug.LogWarning("❌ Camera not found when assigning.");
+            Debug.LogWarning("[PlayerCameraInitializer] Camera not found when assigning.");
         }
     }
 }

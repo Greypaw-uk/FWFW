@@ -10,7 +10,7 @@ public class PlayerUIConnector : NetworkBehaviour
             InventoryUI ui = FindObjectOfType<InventoryUI>();
             if (ui != null)
             {
-                Inventory inventory = GetComponent<Inventory>();
+                IInventory inventory = GetComponent<IInventory>();
                 ui.SetInventory(inventory);
             }
             else

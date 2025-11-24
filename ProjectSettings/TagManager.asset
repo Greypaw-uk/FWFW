@@ -9,12 +9,12 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Colliding Terrain
   - Water
   - UI
   - Player
-  - 
-  - 
+  - Bobber
+  - Land
   - 
   - InteractiveItem
   - 

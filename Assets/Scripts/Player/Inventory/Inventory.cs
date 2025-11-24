@@ -1,35 +1,62 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class Inventory : MonoBehaviour
+public class Inventory : MonoBehaviour, IInventory
 {
     public List<Items.Item> inventoryItems = new();
 
-    [SerializeField] private List<FishSpriteData> fishSprites;
+    [SerializeField] private List<FishSpriteData> itemSprites;
 
-    public void AddItem(string name, float weight, float price)
+    [SerializeField] private int maxItems = 10;
+
+    // Event to notify listeners of changes
+    public event System.Action OnInventoryChanged;
+
+
+    public void AddItem(Items.Item item)
     {
-        Items.Item item = new Items.Item
-        {
-            Name = name,
-            Weight = weight,
-            Price = price
-        };
-
         inventoryItems.Add(item);
+        OnInventoryChanged?.Invoke();
     }
 
-    public List<Items.Item> GetItems()
+
+    public void RemoveItem(Items.Item item)
     {
-        return inventoryItems;
+        if (inventoryItems.Contains(item))
+        {
+            inventoryItems.Remove(item);
+            OnInventoryChanged?.Invoke();
+        }
+        else
+        {
+            Debug.LogWarning($"[Inventory] Item {item.Name} not found in inventory.");
+        }
     }
+
+    public void SellItem(Items.Item item)
+    {
+        int payment = Mathf.CeilToInt(item.Weight * item.PricePerKg);
+
+        Currency currency = GetComponent<Currency>();
+        currency.AddMoney(payment);
+        
+        RemoveItem(item);
+    }
+
+    public List<Items.Item> GetItems() => inventoryItems;
+
+    public int GetCurrentItemsCount() => inventoryItems.Count;
+
+    public int GetMaxItemsCount() => maxItems;
+
 
     public Sprite GetSpriteForItem(string itemName)
     {
-        var match = fishSprites.Find(x => x.name == itemName);
+        var match = itemSprites.Find(x => x.name == itemName);
         return match?.sprite;
     }
 }
+
 
 [System.Serializable]
 public class FishSpriteData

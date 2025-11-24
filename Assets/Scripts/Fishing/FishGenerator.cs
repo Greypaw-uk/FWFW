@@ -3,23 +3,19 @@ using UnityEngine;
 
 public static class FishGenerator
 {
-    private static List<Items.Item> availableFish = new()
+    private static List<Fish> availableFish = new()
     {
-        new Items.Item { Name = "Salmon", MinWeight = 1.0f, MaxWeight = 5.0f, PricePerKg = 10f},
-        new Items.Item { Name = "Tuna", MinWeight = 2.0f, MaxWeight = 10.0f, PricePerKg = 8f },
-        new Items.Item { Name = "Trout", MinWeight = 0.5f, MaxWeight = 3.0f, PricePerKg = 12f },
-        new Items.Item { Name = "Catfish", MinWeight = 1.0f, MaxWeight = 6.0f, PricePerKg = 7f }
+        new Fish("Salmon", 1.0f, 5.0f, 10f, Resources.Load<Sprite>("Icons/Salmon")),
+        new Fish("Tuna", 2.0f, 10.0f, 8f, Resources.Load<Sprite>("Icons/Tuna")),
+        new Fish("Trout", 0.5f, 3.0f, 12f, Resources.Load<Sprite>("Icons/Trout")),
+        new Fish("Catfish", 1.0f, 6.0f, 7f, Resources.Load<Sprite>("Icons/Catfish"))
     };
 
-    public static Items.Item GenerateRandomFish()
+    public static IItem GenerateRandomFish()
     {
-        var fish = new Items.Item();
-        Items.Item selectedFish = availableFish[Random.Range(0, availableFish.Count)];
+        Fish baseFish = availableFish[Random.Range(0, availableFish.Count)];
+        float weight = Mathf.Round(Random.Range(baseFish.MinWeight, baseFish.MaxWeight) * 10f) / 10f;
 
-        fish.Name = selectedFish.Name;
-        fish.Weight = Mathf.Round(Random.Range(selectedFish.MinWeight, selectedFish.MaxWeight) * 10f) / 10f;
-        fish.Price = Mathf.Round(fish.Weight * selectedFish.PricePerKg);
-
-        return fish;
+        return new Fish(baseFish, weight);
     }
 }

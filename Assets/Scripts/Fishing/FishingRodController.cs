@@ -2,60 +2,117 @@ using Unity.Netcode;
 using UnityEngine;
 using System.Collections;
 
-public class FishingRodController : NetworkBehaviour
+[DisallowMultipleComponent]
+public class FishingRodController : NetworkBehaviour, IFishingRodController
 {
-    public float flickAngle = 60f;
-    public float flickDuration = 1f;
+    [Header("Assign the networked Rod prefab here (must have NetworkObject)")]
+    [SerializeField] private GameObject rodPrefab;
 
-    // Used to return rod prefab to original rotation after flick
-    private Quaternion originalRotation;
+    [Header("Flick animation")]
+    [SerializeField] private float flickAngle = 60f;
+    [SerializeField] private float flickDuration = 1f;
 
-    // Allows rod to follow its owner
-    private Transform targetToFollow;
+    private Transform followTarget;              // player transform (this NetworkObject)
+    private GameObject activeRod;                // spawned rod instance
+    private NetworkObject activeRodNetObj;       // cached for despawn checks
+    private Quaternion originalLocalRotation;    // stored after spawn for animation
 
-    public void Initialize(Transform followTarget)
+    public void Initialize(Transform target)
     {
-        targetToFollow = followTarget;
+        followTarget = target;
     }
 
-    private void Awake()
+    /// Server-side: spawn the rod and parent under the player NetworkObject so it follows automatically.
+    public void ShowRod(ulong ownerClientId)
     {
-        originalRotation = transform.localRotation;
-    }
-
-        private void Update()
-    {
-        if (targetToFollow != null)
+        if (!IsServer) return;                        // only the server spawns/despawns networked objects
+        if (activeRod != null) return;                // already spawned
+        if (rodPrefab == null)
         {
-            transform.position = targetToFollow.position;
+            Debug.LogError("FishingRodController: rodPrefab is not assigned on the server.");
+            return;
         }
+
+        if (followTarget == null)
+        {
+            // followTarget should be our own transform (player) — Initialize() must be called by owner before this
+            followTarget = transform;
+        }
+
+        // Instantiate at player's position
+        activeRod = Instantiate(rodPrefab, followTarget.position, Quaternion.identity);
+        activeRodNetObj = activeRod.GetComponent<NetworkObject>();
+
+        if (activeRodNetObj == null)
+        {
+            Debug.LogError("FishingRodController: rodPrefab is missing NetworkObject.");
+            Destroy(activeRod);
+            activeRod = null;
+            return;
+        }
+
+        // Spawn with ownership so the owning client can animate/see it consistently
+        activeRodNetObj.SpawnWithOwnership(ownerClientId);
+
+        // Network parent under this player so the rod follows naturally (no per-frame sync needed)
+        var myNetObj = GetComponent<NetworkObject>();
+        if (myNetObj != null && myNetObj.IsSpawned)
+        {
+            // Parent on the server propagates to clients
+            activeRodNetObj.TrySetParent(myNetObj, false); // worldPositionStays = false => snap to player's transform
+            activeRod.transform.localPosition = Vector3.zero;
+            activeRod.transform.localRotation = Quaternion.identity;
+        }
+
+        // Store original rotation for flick animation
+        originalLocalRotation = activeRod.transform.localRotation;
     }
 
+    /// Server-side: despawn the rod safely.
+    public void HideRod()
+    {
+        if (!IsServer) return;
+
+        if (activeRodNetObj != null && activeRodNetObj.IsSpawned)
+        {
+            activeRodNetObj.Despawn(true);
+        }
+        else if (activeRod != null)
+        {
+            // fallback if not networked/spawned for some reason
+            Destroy(activeRod);
+        }
+
+        activeRod = null;
+        activeRodNetObj = null;
+    }
+
+    /// Flick the currently spawned rod (runs on whoever calls it; visuals are client-side)
     public void Flick()
     {
+        if (activeRod == null) return;
         StopAllCoroutines();
         StartCoroutine(FlickRoutine());
     }
 
-    /// <summary>
-    /// Rotate the rod back X degrees
-    /// Wait for duration
-    /// Return rod to originalRotation (default position)
-    /// </summary>
-    /// <returns></returns>
     private IEnumerator FlickRoutine()
     {
-        Quaternion flickRotation = originalRotation * Quaternion.Euler(0, 0, flickAngle);
+        // Animate the spawned rod's local rotation relative to the player
+        var start = originalLocalRotation;
+        var target = originalLocalRotation * Quaternion.Euler(0f, 0f, flickAngle);
         float elapsed = 0f;
 
         while (elapsed < flickDuration)
         {
             float t = elapsed / flickDuration;
-            transform.localRotation = Quaternion.Slerp(originalRotation, flickRotation, Mathf.Sin(t * Mathf.PI));
+            // sin curve for a quick whip
+            if (activeRod != null)
+                activeRod.transform.localRotation = Quaternion.Slerp(start, target, Mathf.Sin(t * Mathf.PI));
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        transform.localRotation = originalRotation;
+        if (activeRod != null)
+            activeRod.transform.localRotation = originalLocalRotation;
     }
 }

@@ -1,24 +1,23 @@
 using UnityEngine;
-using UnityEngine.AI;
+using Cinemachine;
 
 public class CameraZoom : MonoBehaviour
 {
-    private Camera cam;
+    [SerializeField] private CinemachineVirtualCamera vcam;
     public float currentZoomLevel;
     private float zoomSpeed = 3f;
 
     public float minZoom = 1f;
     public float maxZoom = 10f;
 
-
-    // Start is called before the first frame update
     void Start()
     {
-        cam = GetComponentInChildren<Camera>();
-        currentZoomLevel = cam.orthographicSize;
+        if (vcam == null)
+            vcam = GetComponent<CinemachineVirtualCamera>();
+
+        currentZoomLevel = vcam.m_Lens.OrthographicSize;
     }
 
-    // Update is called once per frame
     void Update()
     {
         float scrollData = Input.GetAxis("Mouse ScrollWheel");
@@ -26,9 +25,7 @@ public class CameraZoom : MonoBehaviour
         currentZoomLevel -= scrollData * zoomSpeed;
         currentZoomLevel = Mathf.Clamp(currentZoomLevel, minZoom, maxZoom);
 
-        if (currentZoomLevel > maxZoom)
-            currentZoomLevel = maxZoom;
-
-        cam.orthographicSize = currentZoomLevel;
+        vcam.m_Lens.OrthographicSize = currentZoomLevel;
     }
 }
+

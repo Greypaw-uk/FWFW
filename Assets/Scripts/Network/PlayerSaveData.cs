@@ -11,11 +11,12 @@ public class PlayerSaveData : NetworkBehaviour
     {
         public Vector3 position;
         public List<Items.Item> inventoryItems;
+        public int currentMoney;
     }
 
     private Inventory inventory;
 
-    public float saveInterval = 30f; 
+    public float saveInterval = 30f;
     private string savePath;
 
     public override void OnNetworkSpawn()
@@ -25,7 +26,7 @@ public class PlayerSaveData : NetworkBehaviour
         inventory = GetComponent<Inventory>();
         savePath = Path.Combine(Application.persistentDataPath, $"playerSave.json");
 
-        LoadPlayerData(); 
+        LoadPlayerData();
         StartCoroutine(AutoSaveRoutine());
     }
 
@@ -44,14 +45,15 @@ public class PlayerSaveData : NetworkBehaviour
     {
         if (inventory == null)
         {
-            Debug.LogWarning("No Inventory found to save.");
+            Debug.LogWarning("[PlayerSaveData] No Inventory found to save.");
             return;
         }
 
         SaveData data = new SaveData
         {
             position = transform.position,
-            inventoryItems = inventory.inventoryItems
+            inventoryItems = inventory.inventoryItems,
+            currentMoney = GetComponent<Currency>().GetMoney
         };
 
         string json = JsonUtility.ToJson(data, true);
@@ -73,12 +75,28 @@ public class PlayerSaveData : NetworkBehaviour
 
         // Apply saved inventory
         if (TryGetComponent(out Inventory inventory))
+        { 
             inventory.inventoryItems = saveData.inventoryItems;
+
+            Currency currency = GetComponent<Currency>();
+            currency.SetMoney(saveData.currentMoney);
+        }
         else
             Debug.LogWarning("[PlayerSaveData] Inventory component not found.");
 
         // Apply saved position
         transform.position = saveData.position;
-        Debug.Log($"[PlayerSaveData] Loaded position {saveData.position} for player {OwnerClientId}");
+        RequestServerToSetPositionServerRpc(saveData.position);
+    }
+    
+
+    /// <summary>
+    /// Update server with client's transform after it has been loaded from file
+    /// </summary>
+    /// <param name="position"></param>
+     [ServerRpc]
+    private void RequestServerToSetPositionServerRpc(Vector3 position)
+    {
+        transform.position = position;
     }
 }

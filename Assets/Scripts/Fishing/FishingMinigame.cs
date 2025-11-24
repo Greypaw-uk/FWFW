@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FishingMinigame : MonoBehaviour
+public class FishingMinigame : MonoBehaviour, IFishingMinigame, IGameUIPanel
 {
     [SerializeField] private GameObject minigamePanel;
     [SerializeField] private RectTransform hook;
@@ -12,78 +12,99 @@ public class FishingMinigame : MonoBehaviour
     private float fishingProgress = 0f;
     private bool minigameActive = false;
 
-    public System.Action OnCatchSuccess;
-    public System.Action OnCatchFailed;
+    public event System.Action OnCatchSuccess;
+    public event System.Action OnCatchFailed;
 
+    public bool IsOpen => minigamePanel != null && minigamePanel.activeSelf;
+
+    public void Open()
+    {
+        if (minigamePanel != null)
+        {
+            minigamePanel.SetActive(true);
+            minigameActive = true;
+        }
+    }
+
+    public void Close()
+    {
+        if (minigamePanel != null)
+        {
+            minigamePanel.SetActive(false);
+            minigameActive = false;
+        }
+    }
+
+    // -----------------------------
+    // IFishingMinigame
+    // -----------------------------
     public void StartMinigame()
     {
         fishingProgress = 0f;
-        minigameActive = true;
-        gameObject.SetActive(true);
+
+        // Use GlobalUIManager to open this panel (it will call Open() on this)
+        GlobalUIManager.Instance.RegisterOpenPanel(this);
+        Open();
     }
-
-    void Update()
-    {
-        minigamePanel.SetActive(minigameActive);
-
-        if (!minigameActive)
-            return;
-
-        // Move hook with mouse position
-        Vector2 localMousePos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            minigamePanel.GetComponent<RectTransform>(),
-            Input.mousePosition,
-            null,
-            out localMousePos
-        );
-
-        // Update only Y axis, keep hook's X unchanged
-        Vector2 hookPos = hook.anchoredPosition;
-        RectTransform panelRect = minigamePanel.GetComponent<RectTransform>();
-
-        // Set hook position to mouse position. Clamp within confines of panel's height, minus the height of the hook so that it doesn't poke out the box
-        hookPos.y = Mathf.Clamp(localMousePos.y, -(panelRect.rect.height - hook.rect.height) / 2, (panelRect.rect.height - hook.rect.height) / 2);
-        hook.anchoredPosition = hookPos;
-
-        // Move target box automatically (bouncing)
-        float yOffset = Mathf.Sin(Time.time * boxMoveSpeed) * boxMoveRange;
-        var boxPos = targetBox.anchoredPosition;
-        boxPos.y = yOffset;
-        targetBox.anchoredPosition = boxPos;
-
-        // Check overlap
-        if (RectTransformUtility.RectangleContainsScreenPoint(targetBox, hook.position))
-        {
-            // Increase fishing progress if there is overlap
-            fishingProgress += Time.deltaTime;
-        }
-        else
-        {
-            // Reduce fishing progress if no overlap
-            fishingProgress -= Time.deltaTime * 2;
-        }
-
-        fishingProgress = Mathf.Clamp(fishingProgress, 0f, requiredFishingProgress);
-
-        Debug.Log($"{fishingProgress}/{requiredFishingProgress}");
-
-        // Victory
-        if (fishingProgress >= requiredFishingProgress)
-        {
-            Debug.LogWarning("Fishing successful");
-
-            minigameActive = false;
-            OnCatchSuccess?.Invoke();
-            gameObject.SetActive(false);
-        }
-    }
-
 
     public void CancelMinigame()
     {
+        EndMinigame(success: false);
+    }
+
+    private void EndMinigame(bool success)
+    {
         minigameActive = false;
-        OnCatchFailed?.Invoke();
-        gameObject.SetActive(false);
+
+        if (success)
+            OnCatchSuccess?.Invoke();
+        else
+            OnCatchFailed?.Invoke();
+
+        // Notify GlobalUIManager that this panel closed
+        GlobalUIManager.Instance.RegisterClosedPanel(this);
+
+        Close();
+    }
+
+    private void Update()
+    {
+        if (!minigameActive) return;
+
+        // --- Hook follows mouse ---
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            minigamePanel.GetComponent<RectTransform>(),
+            Input.mousePosition,
+            null,
+            out Vector2 localMousePos))
+        {
+            Vector2 hookPos = hook.anchoredPosition;
+            RectTransform panelRect = minigamePanel.GetComponent<RectTransform>();
+
+            hookPos.y = Mathf.Clamp(localMousePos.y,
+                -(panelRect.rect.height - hook.rect.height) / 2,
+                (panelRect.rect.height - hook.rect.height) / 2);
+
+            hook.anchoredPosition = hookPos;
+        }
+
+        // --- Target box bounce ---
+        float yOffset = Mathf.Sin(Time.time * boxMoveSpeed) * boxMoveRange;
+        Vector2 boxPos = targetBox.anchoredPosition;
+        boxPos.y = yOffset;
+        targetBox.anchoredPosition = boxPos;
+
+        // --- Progress check ---
+        if (RectTransformUtility.RectangleContainsScreenPoint(targetBox, hook.position))
+            fishingProgress += Time.deltaTime;
+        else
+            fishingProgress -= Time.deltaTime * 2f;
+
+        fishingProgress = Mathf.Clamp(fishingProgress, 0f, requiredFishingProgress);
+
+        if (fishingProgress >= requiredFishingProgress)
+        {
+            EndMinigame(success: true);
+        }
     }
 }
