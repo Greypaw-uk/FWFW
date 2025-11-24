@@ -37,7 +37,7 @@ public class InventoryUI : NetworkBehaviour, IInventoryUI, IGameUIPanel
     {
         if (!IsOwner) return;
 
-        // --- Tab key: open inventory if no other panel is open ---
+        // Tab key opens/closes inventory if no other panel is open ---
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             if (GlobalUIManager.Instance.IsAnyPanelOpen)
@@ -48,8 +48,6 @@ public class InventoryUI : NetworkBehaviour, IInventoryUI, IGameUIPanel
             if (!GlobalUIManager.Instance.IsAnyPanelOpen)
                 Open();
         }
-
-        // --- Escape key: handled by GlobalUIManager ---
     }
 
     #region Inventory Management
