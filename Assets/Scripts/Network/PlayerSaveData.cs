@@ -11,6 +11,7 @@ public class PlayerSaveData : NetworkBehaviour
     {
         public Vector3 position;
         public List<Items.Item> inventoryItems;
+        public int currentMoney;
     }
 
     private Inventory inventory;
@@ -51,7 +52,8 @@ public class PlayerSaveData : NetworkBehaviour
         SaveData data = new SaveData
         {
             position = transform.position,
-            inventoryItems = inventory.inventoryItems
+            inventoryItems = inventory.inventoryItems,
+            currentMoney = GetComponent<Currency>().GetMoney
         };
 
         string json = JsonUtility.ToJson(data, true);
@@ -73,7 +75,12 @@ public class PlayerSaveData : NetworkBehaviour
 
         // Apply saved inventory
         if (TryGetComponent(out Inventory inventory))
+        { 
             inventory.inventoryItems = saveData.inventoryItems;
+
+            Currency currency = GetComponent<Currency>();
+            currency.SetMoney(saveData.currentMoney);
+        }
         else
             Debug.LogWarning("[PlayerSaveData] Inventory component not found.");
 

@@ -33,6 +33,16 @@ public class Inventory : MonoBehaviour, IInventory
         }
     }
 
+    public void SellItem(Items.Item item)
+    {
+        int payment = Mathf.CeilToInt(item.Weight * item.PricePerKg);
+
+        Currency currency = GetComponent<Currency>();
+        currency.AddMoney(payment);
+        
+        RemoveItem(item);
+    }
+
     public List<Items.Item> GetItems() => inventoryItems;
 
     public int GetCurrentItemsCount() => inventoryItems.Count;

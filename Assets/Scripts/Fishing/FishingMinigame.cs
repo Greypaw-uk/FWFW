@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FishingMinigame : MonoBehaviour, IFishingMinigame
+public class FishingMinigame : MonoBehaviour, IFishingMinigame, IGameUIPanel
 {
     [SerializeField] private GameObject minigamePanel;
     [SerializeField] private RectTransform hook;
@@ -15,38 +15,82 @@ public class FishingMinigame : MonoBehaviour, IFishingMinigame
     public event System.Action OnCatchSuccess;
     public event System.Action OnCatchFailed;
 
+    public bool IsOpen => minigamePanel != null && minigamePanel.activeSelf;
+
+    public void Open()
+    {
+        if (minigamePanel != null)
+        {
+            minigamePanel.SetActive(true);
+            minigameActive = true;
+        }
+    }
+
+    public void Close()
+    {
+        if (minigamePanel != null)
+        {
+            minigamePanel.SetActive(false);
+            minigameActive = false;
+        }
+    }
+
+    // -----------------------------
+    // IFishingMinigame
+    // -----------------------------
     public void StartMinigame()
     {
         fishingProgress = 0f;
-        minigameActive = true;
-        gameObject.SetActive(true);
+
+        // Use GlobalUIManager to open this panel (it will call Open() on this)
+        GlobalUIManager.Instance.RegisterOpenPanel(this);
+        Open();
     }
 
-    void Update()
+    public void CancelMinigame()
     {
-        minigamePanel.SetActive(minigameActive);
+        EndMinigame(success: false);
+    }
 
+    private void EndMinigame(bool success)
+    {
+        minigameActive = false;
+
+        if (success)
+            OnCatchSuccess?.Invoke();
+        else
+            OnCatchFailed?.Invoke();
+
+        // Notify GlobalUIManager that this panel closed
+        GlobalUIManager.Instance.RegisterClosedPanel(this);
+
+        Close();
+    }
+
+    private void Update()
+    {
         if (!minigameActive) return;
 
         // --- Hook follows mouse ---
-        Vector2 localMousePos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
             minigamePanel.GetComponent<RectTransform>(),
             Input.mousePosition,
             null,
-            out localMousePos
-        );
+            out Vector2 localMousePos))
+        {
+            Vector2 hookPos = hook.anchoredPosition;
+            RectTransform panelRect = minigamePanel.GetComponent<RectTransform>();
 
-        Vector2 hookPos = hook.anchoredPosition;
-        RectTransform panelRect = minigamePanel.GetComponent<RectTransform>();
-        hookPos.y = Mathf.Clamp(localMousePos.y,
-            -(panelRect.rect.height - hook.rect.height) / 2,
-            (panelRect.rect.height - hook.rect.height) / 2);
-        hook.anchoredPosition = hookPos;
+            hookPos.y = Mathf.Clamp(localMousePos.y,
+                -(panelRect.rect.height - hook.rect.height) / 2,
+                (panelRect.rect.height - hook.rect.height) / 2);
+
+            hook.anchoredPosition = hookPos;
+        }
 
         // --- Target box bounce ---
         float yOffset = Mathf.Sin(Time.time * boxMoveSpeed) * boxMoveRange;
-        var boxPos = targetBox.anchoredPosition;
+        Vector2 boxPos = targetBox.anchoredPosition;
         boxPos.y = yOffset;
         targetBox.anchoredPosition = boxPos;
 
@@ -54,22 +98,13 @@ public class FishingMinigame : MonoBehaviour, IFishingMinigame
         if (RectTransformUtility.RectangleContainsScreenPoint(targetBox, hook.position))
             fishingProgress += Time.deltaTime;
         else
-            fishingProgress -= Time.deltaTime * 2;
+            fishingProgress -= Time.deltaTime * 2f;
 
         fishingProgress = Mathf.Clamp(fishingProgress, 0f, requiredFishingProgress);
 
         if (fishingProgress >= requiredFishingProgress)
         {
-            minigameActive = false;
-            OnCatchSuccess?.Invoke();
-            gameObject.SetActive(false);
+            EndMinigame(success: true);
         }
-    }
-
-    public void CancelMinigame()
-    {
-        minigameActive = false;
-        OnCatchFailed?.Invoke();
-        gameObject.SetActive(false);
     }
 }

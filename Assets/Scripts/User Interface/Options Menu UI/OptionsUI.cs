@@ -2,12 +2,13 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.UI;
 
-public class OptionsUI : NetworkBehaviour
+public class OptionsUI : NetworkBehaviour, IGameUIPanel
 {
     [SerializeField] public GameObject optionsPanel;
     public Button quitButton;
-    private IPlayerFishing fishing;
-    private IInventoryUI inventory;
+
+
+    public bool IsOpen => optionsPanel.activeSelf;
 
 
     public override void OnNetworkSpawn()
@@ -22,22 +23,20 @@ public class OptionsUI : NetworkBehaviour
     void Awake()
     {
         quitButton.onClick.AddListener(QuitButtonClicked);
-
-        fishing = GetComponent<IPlayerFishing>();
-        inventory = GetComponent<InventoryUI>();
     }
 
 
-    void Update()
+    public void Open()
     {
-        // Open the options menu if Escape key is pressed
-        if (!fishing.isFishing &&
-            !inventory.isActive && 
-            Input.GetKeyDown(KeyCode.Escape))
-        {
-            bool isActive = optionsPanel.activeSelf;
-            optionsPanel.SetActive(!isActive);
-        }
+        optionsPanel.SetActive(true);
+        GlobalUIManager.Instance.RegisterOpenPanel(this);
+    }
+
+
+    public void Close()
+    {
+        optionsPanel.SetActive(false);
+        GlobalUIManager.Instance.RegisterClosedPanel(this);
     }
 
 

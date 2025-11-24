@@ -2,53 +2,55 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using Unity.Netcode;
+using TMPro;
 
-public class InventoryUI : NetworkBehaviour, IInventoryUI
+[RequireComponent(typeof(Currency))]
+public class InventoryUI : NetworkBehaviour, IInventoryUI, IGameUIPanel
 {
+    [Header("UI Elements")]
     [SerializeField] public GameObject inventoryPanel;
     public Transform gridParent;
     public GameObject slotPrefab;
+    public TMP_Text currencyText;
 
-    private IInventory playerInventory;
-    bool IInventoryUI.isActive => inventoryPanel.activeSelf;
-
-    private readonly List<GameObject> slots = new();
-
+    [Header("Extras")]
     public Tooltip tooltip;
     public ContextMenu contextMenu;
 
+    private IInventory playerInventory;
+    private Currency currency;
+    private readonly List<GameObject> slots = new();
+
+    public bool IsOpen => inventoryPanel.activeSelf;
+    bool IInventoryUI.isActive => IsOpen;
 
     public override void OnNetworkSpawn()
     {
         inventoryPanel.SetActive(false);
-    }
 
+        currency = GetComponent<Currency>();
+        currency.OnMoneyChanged += UpdateCurrencyUI;
+        UpdateCurrencyUI();
+    }
 
     void Update()
     {
-        // Toggle Inventory panel on Tab key
+        if (!IsOwner) return;
+
+        // --- Tab key: open inventory if no other panel is open ---
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            ToggleInventory();
-            ToggleTooltip();
+            if (GlobalUIManager.Instance.IsAnyPanelOpen)
+            {
+                Close();
+                return;
+            }
+            if (!GlobalUIManager.Instance.IsAnyPanelOpen)
+                Open();
         }
 
-        // Close Inventory panel on Escape key
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (inventoryPanel.activeSelf)
-                ToggleInventory();
-            if (tooltip.tooltipObject.activeSelf)
-                tooltip.Hide();
-            if (contextMenu.IsVisible)
-                contextMenu.Hide();
-        }
-
-        // Hide context menu on left mouse click outside of it
-        if (Input.GetMouseButtonDown(0) && contextMenu.IsVisible && !contextMenu.IsPointerOverMenu())
-            contextMenu.Hide();
+        // --- Escape key: handled by GlobalUIManager ---
     }
-
 
     #region Inventory Management
 
@@ -61,28 +63,13 @@ public class InventoryUI : NetworkBehaviour, IInventoryUI
         playerInventory.OnInventoryChanged += RefreshInventory;
     }
 
-
-    public void ToggleInventory()
-    {
-        bool isActive = inventoryPanel.activeSelf;
-        inventoryPanel.SetActive(!isActive);
-
-        if (!isActive)
-            RefreshInventory();
-    }
-
-
     public void RefreshInventory()
     {
         foreach (var obj in slots)
             Destroy(obj);
         slots.Clear();
 
-        if (playerInventory == null)
-        {
-            Debug.LogWarning("InventoryUI: No playerInventory assigned!");
-            return;
-        }
+        if (playerInventory == null) return;
 
         List<Items.Item> itemsList = playerInventory.GetItems();
 
@@ -101,18 +88,10 @@ public class InventoryUI : NetworkBehaviour, IInventoryUI
             if (i < itemsList.Count)
             {
                 Items.Item item = itemsList[i];
-
                 Sprite itemSprite = playerInventory.GetSpriteForItem(item.Name);
 
-                if (itemSprite != null)
-                {
-                    iconImage.sprite = itemSprite;
-                    iconObject.SetActive(true);
-                }
-                else
-                {
-                    iconObject.SetActive(false);
-                }
+                iconImage.sprite = itemSprite ?? null;
+                iconObject.SetActive(itemSprite != null);
 
                 var hoverHandler = iconObject.AddComponent<SlotHoverHandler>();
                 hoverHandler.Init(tooltip, item.Name, item.Weight.ToString(), item.Price.ToString());
@@ -131,18 +110,30 @@ public class InventoryUI : NetworkBehaviour, IInventoryUI
 
     #endregion
 
+    #region Currency
 
-    #region Tooltips and Context Menus
+    private void UpdateCurrencyUI() => currencyText.text = $"¢: {currency.GetMoney}";
 
-    void ToggleTooltip()
+    #endregion
+
+    #region IGameUIPanel Implementation
+
+    public void Open()
     {
-        if (tooltip.tooltipObject.activeSelf)
-            tooltip.Hide();
-        else
-        {
-            tooltip.Hide();
-            RefreshInventory();
-        }
+        inventoryPanel.SetActive(true);
+        RefreshInventory();
+        GlobalUIManager.Instance.RegisterOpenPanel(this);
+    }
+
+    public void Close()
+    {
+        inventoryPanel.SetActive(false);
+        GlobalUIManager.Instance.RegisterClosedPanel(this);
+    }
+
+    public void ToggleInventory()
+    {
+        throw new System.NotImplementedException();
     }
 
     #endregion

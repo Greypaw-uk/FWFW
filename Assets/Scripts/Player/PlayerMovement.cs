@@ -15,6 +15,7 @@ public class PlayerMovement : NetworkBehaviour
     private NetworkVariable<float> serverSpeed = new(writePerm: NetworkVariableWritePermission.Server);
 
     public IPlayerFishing fishing;
+
     public Vector2 LastMovementDirection { get; private set; } = Vector2.down;
 
     private Rigidbody2D rb;
@@ -29,7 +30,10 @@ public class PlayerMovement : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsOwner || fishing.isFishing) return;
+        if (!IsOwner) return;
+
+        // Player cannot move if any UI panel is open
+        if (GlobalUIManager.Instance.IsAnyPanelOpen) return;
 
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
