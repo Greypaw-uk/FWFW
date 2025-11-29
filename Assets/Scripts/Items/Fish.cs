@@ -1,13 +1,8 @@
 using UnityEngine;
 
 [System.Serializable]
-public class Fish : IFish
+public class Fish: Items.Item
 {
-    public string Name { get; set; }
-    public float Weight { get; set; }
-    public float Price { get; set; }
-    public Sprite Icon { get; set; }
-    
     public float MinWeight { get; set; }
     public float MaxWeight { get; set; }
     public float PricePerKg { get; set; }

@@ -7,6 +7,13 @@ public class ShopItemClickHandler : MonoBehaviour, IPointerClickHandler
     private IShop shopLogic;
     private ShopUI shopUI;
 
+
+    /// <summary>
+    /// Initializes the click handler with the item, shop logic, and shop UI references.
+    /// </summary>
+    /// <param name="_item"></param>
+    /// <param name="_shop"></param>
+    /// <param name="_shopUI"></param>
     public void Init(Items.Item _item, IShop _shop, ShopUI _shopUI)
     {
         item = _item;
@@ -14,9 +21,17 @@ public class ShopItemClickHandler : MonoBehaviour, IPointerClickHandler
         shopUI = _shopUI;
     }
 
+
+    /// <summary>
+    /// Handles pointer click events to sell the item.
+    /// </summary>
+    /// <param name="eventData"></param>
     public void OnPointerClick(PointerEventData eventData)
     {
-        shopLogic.SellItem(item);   // GAME LOGIC
-        shopUI.RefreshUI();        // UI refresh or re-open
+        if (shopLogic != null && item != null)
+        {
+            shopLogic.SellItem(item);  
+            shopUI.RefreshUI();        
+        }
     }
 }

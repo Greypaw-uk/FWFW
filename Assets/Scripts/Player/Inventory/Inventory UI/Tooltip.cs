@@ -45,7 +45,7 @@ public class Tooltip : MonoBehaviour
         }
     }
 
-    private void UpdatePosition()
+    public void UpdatePosition()
     {
         Vector2 mousePos = Input.mousePosition;
         Vector2 anchoredPos;

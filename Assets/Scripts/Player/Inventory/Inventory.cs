@@ -27,21 +27,17 @@ public class Inventory : MonoBehaviour, IInventory
             inventoryItems.Remove(item);
             OnInventoryChanged?.Invoke();
         }
-        else
-        {
-            Debug.LogWarning($"[Inventory] Item {item.Name} not found in inventory.");
-        }
     }
+
 
     public void SellItem(Items.Item item)
     {
-        int payment = Mathf.CeilToInt(item.Weight * item.PricePerKg);
-
         Currency currency = GetComponent<Currency>();
-        currency.AddMoney(payment);
+        currency.AddMoney(Mathf.FloorToInt(item.Price));
         
         RemoveItem(item);
     }
+
 
     public List<Items.Item> GetItems() => inventoryItems;
 

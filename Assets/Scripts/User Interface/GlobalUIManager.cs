@@ -34,7 +34,7 @@ public class GlobalUIManager : MonoBehaviour
         }
         else
         {
-            var optionsPanel = FindObjectOfType<OptionsUI>();
+            var optionsPanel = FindFirstObjectByType<OptionsUI>();
             if (optionsPanel != null && optionsPanel.IsOwner)
                 optionsPanel.Open();
         }
