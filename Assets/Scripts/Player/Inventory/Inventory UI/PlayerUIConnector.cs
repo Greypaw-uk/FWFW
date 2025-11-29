@@ -7,7 +7,7 @@ public class PlayerUIConnector : NetworkBehaviour
     {
         if (IsOwner)
         {
-            InventoryUI ui = FindObjectOfType<InventoryUI>();
+            InventoryUI ui = FindFirstObjectByType<InventoryUI>();
             if (ui != null)
             {
                 IInventory inventory = GetComponent<IInventory>();

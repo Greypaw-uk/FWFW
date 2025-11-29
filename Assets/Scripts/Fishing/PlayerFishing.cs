@@ -31,7 +31,7 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
 
         if (!IsOwner) return;
 
-        fishingMinigame = FindObjectOfType<FishingMinigame>();
+        fishingMinigame = FindFirstObjectByType<FishingMinigame>();
         if (fishingMinigame is IFishingMinigame minigameInterface)
             fishingMinigame = minigameInterface;
     }
@@ -110,7 +110,7 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
         StartFishingMinigame();
     }
 
-    [ServerRpc(RequireOwnership = true)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
     private void RequestCastServerRpc(Vector2 direction)
     {
         CastBobber(direction);
@@ -138,7 +138,7 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
     }
 
 
-    [ServerRpc(RequireOwnership = true)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
     private void RequestHideBobberServerRpc()
     {
         HideBobber();
@@ -154,13 +154,13 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
 
     #region Rod RPC wrappers
 
-    [ServerRpc(RequireOwnership = true)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
     private void ShowRodServerRpc()
     {
         fishingRodController?.ShowRod(OwnerClientId);
     }
 
-    [ServerRpc(RequireOwnership = true)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
     private void HideRodServerRpc()
     {
         if  (fishingRodController != null &&
@@ -173,7 +173,7 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
         }
     }
 
-    [ServerRpc(RequireOwnership = true)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
     private void RodFlickServerRpc()
     {
         fishingRodController?.Flick();
@@ -196,7 +196,7 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
     public void HandleCatchSuccess()
     {
         var fish = FishGenerator.GenerateRandomFish();
-        AddFishServerRpc(fish.Name, fish.Weight, fish.Price);
+        AddFishServerRpc(fish);
         EndFishing();
     }
 
@@ -221,17 +221,23 @@ public class PlayerFishing : NetworkBehaviour, IPlayerFishing
     }
 
     [ServerRpc]
-    private void AddFishServerRpc(string fishName, float weight, float price)
+    private void AddFishServerRpc(NetworkItem fish)
     {
-        AddFishClientRpc(fishName, weight, price);
+        AddFishClientRpc(fish);
     }
 
     [ClientRpc]
-    private void AddFishClientRpc(string fishName, float weight, float price)
+    private void AddFishClientRpc(NetworkItem fish)
     {
-        Sprite fishIcon = GetComponent<Inventory>().GetSpriteForItem(fishName);
-        Items.Item fish = new(fishName, weight, price, fishIcon);
-        GetComponent<Inventory>().AddItem(fish);
+        var item = new Items.Item
+        {
+            Name = fish.Name.ToString(),
+            Weight = fish.Weight,
+            Price = fish.Price,
+            Icon = Resources.Load<Sprite>(fish.IconPath.ToString())
+        };
+
+        GetComponent<Inventory>().AddItem(item);
     }
 
     #endregion
